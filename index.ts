@@ -1,3 +1,4 @@
 import app from './Api/index';
+import { connection } from './Database';
 
-export { app }; // run app
+export { app, connection }; // run app

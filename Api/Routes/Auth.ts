@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { AuthRegister } from '../Controllers/Auth';
+import { AuthCheckPermission, AuthRegister } from '../Controllers/Auth';
 
 const router = Router();
 
-router.get("/register", AuthRegister);
-
+router.post("/register", AuthRegister);
+router.post("/checkPermisson", AuthCheckPermission);
 
 export { router };
