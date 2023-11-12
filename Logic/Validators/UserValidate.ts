@@ -11,7 +11,6 @@ export const PermissionsJoi = joi.object({
 })
 
 export const CheckPermissionJoi = joi.object({
-    username: joi.string().min(3).max(20).required(),
-    password: joi.string().min(8).max(20).required(),
+    token: joi.string().length(256),
     needed_permission: PermissionsJoi
 });
