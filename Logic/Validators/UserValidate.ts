@@ -11,6 +11,6 @@ export const PermissionsJoi = joi.object({
 })
 
 export const CheckPermissionJoi = joi.object({
-    token: joi.string().length(256),
+    token: joi.string(),
     needed_permission: PermissionsJoi
 });

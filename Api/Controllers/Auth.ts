@@ -1,4 +1,4 @@
-import { LogicLogin, LogicRegister } from "../../Logic";
+import { CheckPermissions, LogicLogin, LogicRegister } from "../../Logic";
 
 export async function AuthRegister(req: any, res: any, next: any) {
     // FIXME: replace this with a beautiful await syntax
@@ -9,8 +9,14 @@ export async function AuthRegister(req: any, res: any, next: any) {
     });
 }
 
-export async function AuthCheckPermission(req: any, res:any, next: any) {
-    
+export function AuthCheckPermission(req: any, res:any, next: any) {
+    CheckPermissions(req.body).then((v)=>{
+        return res.send({res: v});
+    }).catch((err)=>{
+        if(err) {
+            res.send({res: false, error: err});
+        }
+    });
 }
 
 export async function AuthLogin(req: any, res: any, next: any) {

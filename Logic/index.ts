@@ -3,9 +3,10 @@ import { CheckPermissionJoi, RegisterRequest } from "./Validators/UserValidate";
 import * as bcrypt from 'bcrypt';
 import JWT from 'jsonwebtoken';
 import config from "../config";
+import Joi from "joi";
 
-export async function LogicRegister(request: any): Promise<Error | boolean> {
-    let validated = await RegisterRequest.validateAsync(request).catch((err)=>{throw err});
+export async function LogicRegister(requestBody: any): Promise<Error | boolean> {
+    let validated = await RegisterRequest.validateAsync(requestBody).catch((err)=>{throw err});
     console.log(validated);
     if(validated.error) {
         console.log(validated.error)
@@ -26,8 +27,8 @@ export async function LogicRegister(request: any): Promise<Error | boolean> {
     return true;
 }
 
-export async function LogicLogin(request: any): Promise< Error | string > {
-    let validated = await RegisterRequest.validateAsync(request);
+export async function LogicLogin(requestBody: any): Promise< Error | string > {
+    let validated = await RegisterRequest.validateAsync(requestBody);
     console.log(validated);
     /*if(validated.error) {
         console.log(validated.error)
@@ -68,17 +69,15 @@ export function PermissionEqual(per1: Permissions[], per2: Permissions[]): boole
     return true;
 }
 
-export async function CheckPermissions(request: any): Promise<Error | boolean> {
-    let validated = await CheckPermissionJoi.validateAsync(request);
-    if(!validated) throw Error("Validation error");
-    let data = JWT.verify(validated.token, config.JWT_SECRET)
-    return ComparePermissions(data., validated.needed_permission);
+export async function CheckPermissions(requestBody: any): Promise<boolean> {
+    let validated = CheckPermissionJoi.validate(requestBody);
+    if(validated.error) {
+        console.log("Joi have failed: ", validated.error.message);
+        throw new Error(`Validation error: ${validated.error.name}
+${validated.error.message}`);
+    }
+    let data = JWT.verify(validated.value.token, config.JWT_SECRET);
+    if(typeof data === 'string') throw new Error("JWT verification failed (or succeeded but returned a string): " + data);
+
+    return ComparePermissions(data.permissions, validated.value.needed_permission);
 }
-
-/*
- [
-    {module_ismi: "", yetki_alanı: ["remove", "add", "create"]}
- ]
-
- {yetki_bir:}
-*/
