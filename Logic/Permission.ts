@@ -14,19 +14,22 @@ export function ComparePermissions(user_permissions: Permissions[], needed_permi
 
 // TODO: Write unit tests.
 
-export function PermissionEqual(per1: Permissions[], per2: Permissions[]): boolean {
+export function PermissionEqual(per1: Permissions, per2: Permissions): boolean {
+    return (
+        per1.module_name === per2.module_name
+        && per1.permitted_actions.every(v=>per2.permitted_actions.includes(v))
+        && per2.permitted_actions.every(v=>per1.permitted_actions.includes(v))
+    )
+}
+
+export function PermissionsEqual(per1: Permissions[], per2: Permissions[]): boolean {
     // Returns true if per1 == per2, returns false otherwise.
     if(per1.length !== per2.length) return false;
     for(let i1 = 0; i1 < per1.length; i1++) {
         let module2 = per2.find( x => x.module_name === per1[i1].module_name);
         if(!module2) return false; // continue if some module in per1 doesn't exist in per2, since per1 can be broader than per2.
         if(per1[i1].permitted_actions.length !== module2.permitted_actions.length) return false;
-        // Check if permitted actions arrays are equal or greater. per1[i1].permitted_actions >= module2.permitted_actions
-        for(let i2 = 0; i2 < module2.permitted_actions.length; i2++) {
-            if(!per1[i1].permitted_actions.includes(module2.permitted_actions[i2])) {
-                return false;
-            }
-        }
+        if(!PermissionEqual(module2, per1[i1])) return false;
     }
     return true;
 }
@@ -83,6 +86,13 @@ export function unionPermissions(p1: Permissions[], p2: Permissions[]): Permissi
         p3 = addPermission(p3, p2[i]);
     }
     return p3;
+}
+
+export function createPermissions(module_name: string, permitted_actions: string[]): Permissions {
+    return {
+        module_name: module_name,
+        permitted_actions: permitted_actions
+    } as Permissions
 }
 
 // FIXME: handle edge cases for above functions
