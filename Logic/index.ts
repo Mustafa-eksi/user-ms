@@ -4,6 +4,7 @@ import { addPermission, ComparePermissions, PermissionEqualorGreater, unionPermi
 import * as bcrypt from 'bcrypt';
 import JWT from 'jsonwebtoken';
 import config from "../config";
+import { CheckPermissionDatabase } from "../Database/helpers/User";
 
 export async function LogicRegister(requestBody: any): Promise<Error | boolean> {
     let validated = await RegisterRequest.validateAsync(requestBody).catch((err)=>{throw err});
@@ -55,23 +56,19 @@ export async function LogicAddPermission(requestBody: any): Promise<boolean> {
     let user = JWT.verify(validated.token, config.JWT_SECRET);
     // user.permissions >= validated.permit
     if(typeof user === 'string') throw new Error("JWT verification failed (or succeeded but returned a string): " + user);
-    
+
+    // NOTE: I should update this if I decide to go with tokens with custom subsets of user's permissions.   
+    if(!(await CheckPermissionDatabase(user.username, user.permissions))) throw new Error("Your token is out to date or doesn't include all of your permissions.");
+
     if(!PermissionEqualorGreater(user.permissions, validated.permit)) { // Means you don't have permission to give these permissions.
         return false;
     }
-
     let addTo = await UserModel.findOne({username: validated.add_to});
     if(!addTo) throw new Error("This user doesn't exist: " + validated.username)
-    
     let new_permissions = unionPermissions(addTo.permissions, validated.permit);
-    
     await UserModel.findOneAndUpdate(
-        { // Filter
-            username: validated.add_to
-        },
-        { // Update
-            permissions: new_permissions
-        }
+        { username: validated.add_to }, // Filter
+        { permissions: new_permissions } // Update
     );
 
     return true;

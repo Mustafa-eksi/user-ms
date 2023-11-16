@@ -34,6 +34,7 @@ export async function AuthAddPermission(req: any, res: any, next: any) {
     }).catch((err)=>{
         if(err){
             console.log(err); // Debug only
+            res.send({res: false, error: "An error occured."})
         }
     })
 }
