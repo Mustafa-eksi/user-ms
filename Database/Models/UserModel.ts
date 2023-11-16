@@ -1,6 +1,6 @@
 import { prop, getModelForClass, modelOptions, Ref } from '@typegoose/typegoose'
 
-export class Permissions {
+export class Permissions { // FIXME: Rename to "Permission"
     @prop({required:true})
     public module_name!: string;
     @prop({required:true})
