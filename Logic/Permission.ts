@@ -34,13 +34,14 @@ export function PermissionEqual(per1: Permissions[], per2: Permissions[]): boole
 export function PermissionEqualorGreater(per1: Permissions[], per2: Permissions[]): boolean {
     // Returns true if per1 >= per2, returns false otherwise.
     if(per1.length < per2.length) return false;
-    for(let i1 = 0; i1 < per1.length; i1++) {
-        let module2 = per2.find( x => x.module_name === per1[i1].module_name);
-        if(!module2) continue; // continue if some module in per1 doesn't exist in per2, since per1 can be broader than per2.
-        if(per1[i1].permitted_actions.length < module2.permitted_actions.length) return false;
-        // Check if permitted actions arrays are equal or greater. per1[i1].permitted_actions >= module2.permitted_actions
-        for(let i2 = 0; i2 < module2.permitted_actions.length; i2++) {
-            if(!per1[i1].permitted_actions.includes(module2.permitted_actions[i2])) {
+    
+    for(let i = 0; i < per2.length; i++) {
+        // searches every element of per2 in per1, if it fails returns false because per1 should at least include per2.
+        let module = per1.find(x => x.module_name === per2[i].module_name);
+        if(!module) return false;
+        // per2[i] exists on per1 too
+        for(let j = 0; j < per2[i].permitted_actions.length; j++) {
+            if(!module.permitted_actions.includes(per2[i].permitted_actions[j])) {
                 return false;
             }
         }
